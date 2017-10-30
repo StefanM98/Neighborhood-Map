@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Neighborhood Map</title>
+        <script src="https://use.fontawesome.com/e507e806fa.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+        <link rel="stylesheet" type="text/css" href="css/main.css">
+    </head>
+
+    <body>
+        <div class="container-fluid fill">
+            <div class="row fill">
+                <div id="menu">
+                    <h3 class="title">Neighborhood Map</h3>
+                    <div class="input-group">
+                        <input class="textbox" type="text">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary filter-btn" type="button">
+                                <i class="fa fa-filter" aria-hidden="true"></i>                                    
+                                Filter
+                            </button>
+                        </span>
+                    </div>
+                    <ul id="list" data-bind="foreach: locations">
+                        <li data-bind="event: {mouseover: $parent.toggleHighlight, mouseout: $parent.toggleHighlight}, text: name, click: $parent.focus"></li>
+                    </ul>
+                </div>
+                <div id="main">
+                    <div class="topbar">
+                        <i data-bind="click: toggleNav" class="fa fa-2x fa-bars" aria-hidden="true"></i>                            
+                    </div>
+                    <div id="map"></div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHok7pIXvTWpSVIPwgG5DN_OHmNDiTsds&callback=initMap"></script>
+        <script src="js/knockout-3.4.2.js"></script>
+        <script src="js/app.js"></script>
+          
+        
+          
+
+    </body>
+
+</html>

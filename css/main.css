@@ -1,0 +1,76 @@
+body, html, .container-fluid {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+#map {
+    width: 100%;
+    height: calc(100% - 90px);
+    background-color: grey;
+}
+
+.fill {
+    min-height: 100%;
+    height: 100%;
+}
+
+.topbar {
+    height: 90px;
+    background-color: rgb(32, 32, 32);
+    color: #3175E2;
+}
+
+.fa-bars {
+    margin-left: 20px;
+    margin-top: 30px;
+}
+
+#main {
+    padding-left: 0;
+    padding-right: 0;
+    width: 100%;
+    transition: 0.5s;
+}
+
+#menu {
+    background-color: black;
+    color: #E4E4E4;
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    left: 0;
+    overflow-x: hidden; /* Disable horizontal scroll */
+    overflow-y: hidden;
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+}
+
+
+.title {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    margin-left: 10px;
+    font-size: 25px;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+}
+
+li {
+    height: 50px;
+    padding: 5px;
+    font-size: 18px;
+}
+
+li:hover {
+    background-color: #3175E2;
+    color: white;
+    transition: 0.3s;
+}
+
