@@ -34,7 +34,7 @@ var ViewModel = function() {
     this.focus = function() {
         map.setCenter(this.location)
         map.setZoom(19)
-        populateInfoWindow(this, largeInfowindow)
+        populateInfoWindow(markers[this.id], largeInfowindow)
     }
    
     this.toggleHighlight = function() {
@@ -97,6 +97,7 @@ function initMap() {
             id: i,
             icon: getIcon('00469F')
         })
+        locations[i].id = marker.id;
         markers.push(marker);
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
@@ -111,7 +112,7 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      var windowContent = '<div>' + marker.title + '</div>' + '<div>'
+      var windowContent = '<div>' + marker.title + '</div>';
       infowindow.setContent(windowContent);
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
