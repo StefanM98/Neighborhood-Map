@@ -16,6 +16,8 @@ var map;
 var largeInfowindow;
 var WikiResult;
 var windowContent;
+var streetviewURL = "https://maps.googleapis.com/maps/api/streetview?";
+var googleKey = "AIzaSyCHok7pIXvTWpSVIPwgG5DN_OHmNDiTsds"
 
 var ViewModel = function() {
     var self = this;
@@ -38,7 +40,8 @@ var ViewModel = function() {
     this.focus = function() {
         map.setCenter(this.location)
         map.setZoom(19)
-        populateInfoWindow(markers[this.id], largeInfowindow)
+        //console.log(getWiki(markers[this.id]))
+        getWiki(markers[this.id])
     }
    
     this.toggleHighlight = function() {
@@ -75,7 +78,7 @@ function initMap() {
         zoom: 16,
         center: locations[0].location,
         clickableIcons: false,
-        styles: [{"featureType":"poi", "elementType":"labels", 
+        styles: [{"featureType":"poi.business", "elementType":"all", 
         "stylers":[{"visibility": "off"}], "featureType":"all","elementType":"all",
         "stylers":[{"invert_lightness":true},{"saturation":10},{"lightness":30},{"gamma":0.5},
         {"hue":"#435158"}]}]
@@ -111,35 +114,56 @@ function initMap() {
     
 };
 
-/*
-function authYelp(marker) {
-    //Authenticates with Yelp and gets an access token
-    var http_request;
-    http_request = new XMLHttpRequest();
-    http_request.onreadystatechange = function () {
-        if (http_request.readyState === XMLHttpRequest.DONE) {
-            if (http_request.status === 200) {
-                // Here the callback is implemented
-                access_token = $.parseJSON(http_request.responseText);
-                return getYelp(marker);
-            } else {
-                console.log("XMLHttpRequest failed.");
+function getStreetView(marker) {
+    var location = locations[marker.id].location.lat + "," + locations[marker.id].location.lng;
+    var parms = "location=" + location + "&size=300x250&key=" + googleKey;
+
+    // $.ajax({
+    //     type: "GET",
+    //     url: streetviewURL + parms,
+    //     //contentType: "application/json; charset=utf-8",
+    //     async: false,
+    //     dataType: "json",
+    //     success: function (data, textStatus, jqXHR) {
+            
+    //         console.log(data);
+    //         //populateInfoWindow(marker, largeInfowindow);
+    //         //$('#article').html($(blurb).find('p'));
+    //     },
+    //     error: function (errorMessage) {
+    //         console.log("There was an error: " + errorMessage);
+    //     }
+    // });
+
+    var imageUrl = streetviewURL + parms;
+    convertFunction(imageUrl, function(base64Img){
+        var img = "<img src='"+base64Img+"'>";
+        windowContent = img;
+    });
+            
+    function convertFunction (url, callback){
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = 'blob';
+        xhr.onload = function() {
+            var reader  = new FileReader();
+            reader.onloadend = function () {
+                callback(reader.result);
             }
+            reader.readAsDataURL(xhr.response);
         };
-    };
-    http_request.open("POST", "https://api.yelp.com/oauth2/token?client_id=P7hXIOwwe7OehLlEjD-m0A&client_secret=nnLQU8iUbYdck3DNZmJikX39XV7PKA0neA9UuSTYaU5GOT1Jm2GRTAowQVfZJUbh");
-    http_request.withCredentials = true;
-    //http_request.setRequestHeader("Content-Type", "application/json");
-    http_request.send();
-    return http_request.onreadystatechange();
-    
+        xhr.open('GET', url);
+        xhr.send();
+    }
+
 };
-*/
 
 function getWiki(marker){
-    var url = "http://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=" + 
+    var wikiURL = "http://en.wikipedia.org/w/api.php?";
+    var url = wikiURL + "action=parse&format=json&prop=text&section=0&page=" + 
     marker.title + '&callback=?';
-    
+
+    getStreetView(marker);
+
     $.ajax({
         type: "GET",
         url: url,
@@ -147,41 +171,27 @@ function getWiki(marker){
         async: false,
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
-            //WikiResult = data.parse.text["*"];
-            //console.log(WikiResult);
-            var result = data.parse.text["*"];
+            //Checks if there any data is returned
+            try {
+                var result = data.parse.text["*"];
+            }
+            // If not return message to user
+            catch(error) {
+                var message = "<div>No Wikipedia data to display.</div>";
+                windowContent += message;
+                populateInfoWindow(marker, largeInfowindow);
+                return;
+            }
+            // If data is returned add to windowContent
             var blurb = $('<div></div>').html(result);
-            windowContent = $('p', blurb)[0].textContent;
-            //console.log(windowContent);
+            // Add to windowContent after removing references ex. [2][3]
+            windowContent += $('p', blurb)[0].textContent.replace(/(\[.*?\])/g, '');
             populateInfoWindow(marker, largeInfowindow);
-            //$('#article').html($(blurb).find('p'));
         },
         error: function (errorMessage) {
+            console.log("There was an error: " + errorMessage);
         }
     });
-
-    /*
-    // Create GET Request
-    var http_request;
-    http_request = new XMLHttpRequest();
-    http_request.onreadystatechange = function () {
-        if (http_request.readyState === XMLHttpRequest.DONE) {
-        if (http_request.status === 200) {
-            // Gets yelpID
-            WikiResult = JSON.parse(http_request.responseText);
-            console.log(WikiResult);
-        } else {
-            console.log("getYelp XMLHttpRequest failed.");
-        }
-        };
-    };
-    http_request.open("GET", url + params);
-    http_request.withCredentials = true;
-    //http_request.setRequestHeader("Authorization", "Bearer " + access_token.access_token);
-    //console.log(access_token.access_token);
-    http_request.send();
-    return http_request.onreadystatechange();
-    */
 };
 
 function populateInfoWindow(marker, infowindow) {
