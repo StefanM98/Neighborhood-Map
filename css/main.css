@@ -74,3 +74,7 @@ li:hover {
     transition: 0.3s;
 }
 
+/* Google Maps Info Window */
+.gm-style-iw {
+    text-align: left;
+}

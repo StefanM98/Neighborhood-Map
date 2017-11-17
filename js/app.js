@@ -1,6 +1,14 @@
+// Sarajevo, Bosnia and Herzegovina
+var locations = [
+    {name: "Latin Bridge", highlighted: false, type: "attraction", location: {lat: 43.857644, lng: 18.4267521}},
+    {name: "Sacred Heart Cathedral", highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
+    {name: "Eternal flame", highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
+    {name: "National Gallery of Bosnia and Herzegovina", highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
+    {name: "Sarajevo National Theatre", highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}}
+]
 
-
-
+/*
+//My Neighborhood
 var locations = [
     {name: "Shop 'n Save", highlighted: false, type: "store", location: {lat: 39.79909749999999, lng: -77.7276519}},
     {name: "Stefan's House", highlighted: false, type: "misc", location: {lat: 39.79924800000001, lng: -77.73107149999998}},
@@ -10,6 +18,8 @@ var locations = [
     {name: "Sunnyway Foods Market", highlighted: false, type: "store", location: {lat: 39.795475, lng: -77.72888739999999}},
     {name: "Sunnyway Diner", highlighted: false, type: "restaurant", location: {lat: 39.7936627, lng: -77.7296104}}
 ];
+*/
+
 
 var markers = [];
 var map;
@@ -17,6 +27,8 @@ var largeInfowindow;
 var WikiResult;
 var windowContent;
 var streetviewURL = "https://maps.googleapis.com/maps/api/streetview?";
+var googlePlaceSearchURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+var googlePlacePhotoURL = "https://maps.googleapis.com/maps/api/place/photo?";
 var googleKey = "AIzaSyCHok7pIXvTWpSVIPwgG5DN_OHmNDiTsds"
 
 var ViewModel = function() {
@@ -42,6 +54,7 @@ var ViewModel = function() {
         map.setZoom(19)
         //console.log(getWiki(markers[this.id]))
         getWiki(markers[this.id])
+        getGooglePlace(markers[this.id])
     }
    
     this.toggleHighlight = function() {
@@ -78,10 +91,47 @@ function initMap() {
         zoom: 16,
         center: locations[0].location,
         clickableIcons: false,
-        styles: [{"featureType":"poi.business", "elementType":"all", 
-        "stylers":[{"visibility": "off"}], "featureType":"all","elementType":"all",
-        "stylers":[{"invert_lightness":true},{"saturation":10},{"lightness":30},{"gamma":0.5},
-        {"hue":"#435158"}]}]
+        styles: [
+            {
+                "featureType": "all",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "invert_lightness": true
+                    },
+                    {
+                        "saturation": 10
+                    },
+                    {
+                        "lightness": 30
+                    },
+                    {
+                        "gamma": 0.5
+                    },
+                    {
+                        "hue": "#435158"
+                    }
+                ]
+            },
+            {
+                "featureType": "poi",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                ]
+            },
+            {
+                "featureType": "road",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "on"
+                    }
+                ]
+            }
+        ]
     };
 
     largeInfowindow = new google.maps.InfoWindow();
@@ -114,26 +164,31 @@ function initMap() {
     
 };
 
+function getGooglePlace(marker) {
+    var location = {"lat": locations[marker.id].location.lat, "lng": locations[marker.id].location.lng};
+    var parms = "location=" + location + "keyword=" + marker.title + "&radius=300&key=" + googleKey;
+    
+    var request = {
+        location: location,
+        radius: '500',
+        keyword: marker.title,
+      };
+
+    service = new google.maps.places.PlacesService(map);
+    service.nearbySearch(request, callback);
+
+    function callback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            var photo = results[0].photos[0];
+            var photoUrl = photo.getUrl({'maxWidth': 350, 'maxHeight': 350});
+        }
+      }
+
+}
+
 function getStreetView(marker) {
     var location = locations[marker.id].location.lat + "," + locations[marker.id].location.lng;
     var parms = "location=" + location + "&size=300x250&key=" + googleKey;
-
-    // $.ajax({
-    //     type: "GET",
-    //     url: streetviewURL + parms,
-    //     //contentType: "application/json; charset=utf-8",
-    //     async: false,
-    //     dataType: "json",
-    //     success: function (data, textStatus, jqXHR) {
-            
-    //         console.log(data);
-    //         //populateInfoWindow(marker, largeInfowindow);
-    //         //$('#article').html($(blurb).find('p'));
-    //     },
-    //     error: function (errorMessage) {
-    //         console.log("There was an error: " + errorMessage);
-    //     }
-    // });
 
     var imageUrl = streetviewURL + parms;
     convertFunction(imageUrl, function(base64Img){
