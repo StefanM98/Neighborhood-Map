@@ -47,6 +47,10 @@ body, html, .container-fluid {
     transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
 }
 
+.textbox {
+    width: 100%;
+}
+
 
 .title {
     margin-top: 32px;
@@ -63,9 +67,10 @@ ul {
 }
 
 li {
-    height: 50px;
-    padding: 5px;
+    max-height: 75px;
+    padding: 10px;
     font-size: 18px;
+    width: 100%;
 }
 
 li:hover {
@@ -77,4 +82,8 @@ li:hover {
 /* Google Maps Info Window */
 .gm-style-iw {
     text-align: left;
+}
+
+h3, li {
+    width: 275px;
 }

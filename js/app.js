@@ -1,10 +1,10 @@
 // Locations in Sarajevo, Bosnia and Herzegovina
 var locations = [
-    {name: "Sebilj in Sarajevo", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
-    {name: "Sacred Heart Cathedral", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
-    {name: "Eternal flame", visable: true, highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
-    {name: "National Gallery of Bosnia and Herzegovina", visable: true, highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
-    {name: "Sarajevo National Theatre", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}}
+    {id: 0, name: "Sebilj in Sarajevo", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
+    {id: 1, name: "Sacred Heart Cathedral", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
+    {id: 2, name: "Eternal flame", visable: true, highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
+    {id: 3, name: "National Gallery of Bosnia and Herzegovina", visable: true, highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
+    {id: 4, name: "Sarajevo National Theatre", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}}
 ];
 
 /*
@@ -38,13 +38,87 @@ var streetViewData = ko.observable();
 var ViewModel = function() {
     var self = this;
     
+    var mapOptions = {
+        zoom: 16,
+        center: locations[0].location,
+        clickableIcons: false,
+        styles: [
+            {
+                "featureType": "all",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "invert_lightness": true
+                    },
+                    {
+                        "saturation": 10
+                    },
+                    {
+                        "lightness": 30
+                    },
+                    {
+                        "gamma": 0.5
+                    },
+                    {
+                        "hue": "#435158"
+                    }
+                ]
+            },
+            {
+                "featureType": "poi",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                ]
+            },
+            {
+                "featureType": "road",
+                "elementType": "all",
+                "stylers": [
+                    {
+                        "visibility": "on"
+                    }
+                ]
+            }
+        ]
+    };
+    largeInfowindow = new google.maps.InfoWindow();
+    var bounds = new google.maps.LatLngBounds();
+    map = new google.maps.Map(document.getElementById('map'), mapOptions)
+    
+    // Adds all locations to markers
+    for (var i = 0; i < locations.length; i++) {
+        var position = locations[i].location;
+        var title = locations[i].name;
+        var type = locations[i].type;
+        var marker = new google.maps.Marker({
+            map: map,
+            position: position,
+            title: title,
+            type: type,
+            animation: google.maps.Animation.DROP,
+            id: i,
+            icon: getIcon('00469F')
+        })
+        locations[i].id = marker.id;
+        markers.push(marker);
+        marker.addListener('click', function() {
+            self.getData(marker);
+        });
+        bounds.extend(markers[i].position);
+        map.fitBounds(bounds);
+    };
+
     // Sets up inital view locations
     this.locations = ko.observableArray([]);
-
+    
     for (var i = 0; i < locations.length; i++) {
         self.locations().push(locations[i]);
     };
-
+    
+    self.locations.sort(function (left, right) { return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) });
 
     // Function that toggles the nav side bar
     this.navToggle = ko.observable(false);
@@ -61,14 +135,51 @@ var ViewModel = function() {
         }
         
     };
+
+    // Toggles the visability of the marker and list locations
+    this.toggleVisability = function(location, bool) {
+        if (!bool) {
+            markers[location.id].setMap(null);
+            self.locations.remove(location);
+            location.visable = false;
+        }
+        else {
+            //console.log(location.name);
+            //console.log(self.locations()[0].name);
+            markers[location.id].setMap(map);
+            var found = false;
+            for (var i = 0; i < self.locations().length; i++) {
+                if (self.locations()[i].name == location.name) {
+                    found = true;
+                    break;
+                };
+            };
+
+            if (!found) {
+                self.locations.push(location);
+            };
+            
+            location.visable = true;
+        }
+    }
     
     // Function that filters the list of items and markers using a search term
     this.searchTerm = ko.observable("");
     this.filterList = ko.computed(function() {
-        var filter = self.searchTerm();
+        var filter = self.searchTerm().toLowerCase();
         if (!filter) {
-            locations.forEach(function(item) {
-                //item.visible(true);
+            locations.forEach(function(location) {
+                self.toggleVisability(location, true);
+            });
+            //self.locations(locations)
+            return self.locations.sort(function (left, right) { return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) });;
+        }
+        else {
+            return ko.utils.arrayFilter(locations, function(location) {
+                var string = location.name.toLowerCase();
+				var result = (string.search(filter) >= 0);
+                self.toggleVisability(location, result);
+				return result;
             });
         };
     });
@@ -78,21 +189,18 @@ var ViewModel = function() {
     this.focus = function() {
         map.setCenter(this.location);
         map.setZoom(19);
-        self.getData(markers[this.id]);
+        
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].title == this.name) {
+                self.getData(markers[i]);
+                break;
+            }
+        }
+
+        
     };
 
-    // Toggles the visability of the marker and list locations
-    this.toggleVisability = function(location) {
-        if (location.visable) {
-            markers[location.id].setMap(null);
-
-            location.visable = false;
-        }
-        else {
-            markers[location.id].setMap(map);
-            location.visable = true;
-        }
-    }
+    
    
     // "Highlights" the marker by changing it's color
     this.toggleHighlight = function() {
@@ -153,6 +261,7 @@ function getIcon(color) {
     return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color;
 };
 
+/*
 function initMap() {
 
     var mapOptions = {
@@ -223,13 +332,15 @@ function initMap() {
         locations[i].id = marker.id;
         markers.push(marker);
         marker.addListener('click', function() {
-            getWiki(this);
+            //getWiki(this);
         });
         bounds.extend(markers[i].position);
         map.fitBounds(bounds);
     };
     
 };
+
+*/
 
 function getGooglePlace(marker) {
     var location = {"lat": locations[marker.id].location.lat, "lng": locations[marker.id].location.lng};
@@ -363,5 +474,7 @@ function populateInfoWindow(marker, infowindow) {
     }
   }
 
+function start() {
+    ko.applyBindings(new ViewModel());
+};
 
-ko.applyBindings(new ViewModel());
