@@ -165,8 +165,8 @@ var ViewModel = function() {
 
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
-        map.setCenter(this.location);
-        map.setZoom(19);
+        self.map.setCenter(this.location);
+        self.map.setZoom(19);
         self.getData(markers[this.id]);
     };
 
