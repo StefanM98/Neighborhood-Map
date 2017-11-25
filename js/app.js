@@ -1,11 +1,11 @@
 // Locations in Sarajevo, Bosnia and Herzegovina
 var locations = [
-    {name: "Sebilj in Sarajevo", highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
-    {name: "Sacred Heart Cathedral", highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
-    {name: "Eternal flame", highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
-    {name: "National Gallery of Bosnia and Herzegovina", highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
-    {name: "Sarajevo National Theatre", highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}}
-]
+    {name: "Sebilj in Sarajevo", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
+    {name: "Sacred Heart Cathedral", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
+    {name: "Eternal flame", visable: true, highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
+    {name: "National Gallery of Bosnia and Herzegovina", visable: true, highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
+    {name: "Sarajevo National Theatre", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}}
+];
 
 /*
 //My Neighborhood
@@ -37,9 +37,17 @@ var streetViewData = ko.observable();
 
 var ViewModel = function() {
     var self = this;
+    
+    // Sets up inital view locations
+    this.locations = ko.observableArray([]);
 
+    for (var i = 0; i < locations.length; i++) {
+        self.locations().push(locations[i]);
+    };
+
+
+    // Function that toggles the nav side bar
     this.navToggle = ko.observable(false);
-
     this.toggleNav = function() {
         if (this.navToggle == true) {
             document.getElementById("menu").style.width = "0";
@@ -54,12 +62,37 @@ var ViewModel = function() {
         
     };
     
+    // Function that filters the list of items and markers using a search term
+    this.searchTerm = ko.observable("");
+    this.filterList = ko.computed(function() {
+        var filter = self.searchTerm();
+        if (!filter) {
+            locations.forEach(function(item) {
+                //item.visible(true);
+            });
+        };
+    });
+
+
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
         map.setCenter(this.location);
         map.setZoom(19);
         self.getData(markers[this.id]);
     };
+
+    // Toggles the visability of the marker and list locations
+    this.toggleVisability = function(location) {
+        if (location.visable) {
+            markers[location.id].setMap(null);
+
+            location.visable = false;
+        }
+        else {
+            markers[location.id].setMap(map);
+            location.visable = true;
+        }
+    }
    
     // "Highlights" the marker by changing it's color
     this.toggleHighlight = function() {

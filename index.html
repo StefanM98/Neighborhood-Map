@@ -19,7 +19,7 @@
                 <div id="menu">
                     <h3 class="title">Neighborhood Map</h3>
                     <div class="input-group">
-                        <input class="textbox" type="text">
+                        <input data-bind="textInput: searchTerm, valueUpdate: 'afterkeydown'" placeholder="Search…" class="textbox" type="text">
                         <span class="input-group-btn">
                             <button class="btn btn-primary filter-btn" type="button">
                                 <i class="fa fa-filter" aria-hidden="true"></i>                                    
