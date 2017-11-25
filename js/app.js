@@ -1,6 +1,6 @@
-// Sarajevo, Bosnia and Herzegovina
+// Locations in Sarajevo, Bosnia and Herzegovina
 var locations = [
-    {name: "Latin Bridge", highlighted: false, type: "attraction", location: {lat: 43.857644, lng: 18.4267521}},
+    {name: "Sebilj in Sarajevo", highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
     {name: "Sacred Heart Cathedral", highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
     {name: "Eternal flame", highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
     {name: "National Gallery of Bosnia and Herzegovina", highlighted: false, type: "attraction", location: {lat: 43.857778, lng: 18.424444}},
@@ -31,10 +31,15 @@ var googlePlaceSearchURL = "https://maps.googleapis.com/maps/api/place/nearbysea
 var googlePlacePhotoURL = "https://maps.googleapis.com/maps/api/place/photo?";
 var googleKey = "AIzaSyCHok7pIXvTWpSVIPwgG5DN_OHmNDiTsds"
 
+var wikiData = ko.observable();
+var streetViewData = ko.observable();
+
+
 var ViewModel = function() {
     var self = this;
 
     this.navToggle = ko.observable(false);
+
     this.toggleNav = function() {
         if (this.navToggle == true) {
             document.getElementById("menu").style.width = "0";
@@ -47,25 +52,22 @@ var ViewModel = function() {
             this.navToggle = true;
         }
         
-    } 
+    };
     
+    // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
-        map.setCenter(this.location)
-        map.setZoom(19)
-        //console.log(getWiki(markers[this.id]))
-        getWiki(markers[this.id])
-        getGooglePlace(markers[this.id])
-    }
+        map.setCenter(this.location);
+        map.setZoom(19);
+        self.getData(markers[this.id]);
+    };
    
+    // "Highlights" the marker by changing it's color
     this.toggleHighlight = function() {
-        //var thisMarker = getMarker(this.name)
         for (var i = 0; i < markers.length; i++) {
-            //console.log(markers[i].title);
             if (markers[i].title == this.name) {
                 var thisMarker = markers[i];
             }
         }
-        //console.log(thisMarker);
         if (thisMarker.highlighted) {
             thisMarker.setIcon(getIcon('00469F'));
             thisMarker.highlighted = false;
@@ -75,15 +77,48 @@ var ViewModel = function() {
             thisMarker.highlighted = true;
         }
         
-    } 
-    
+    }; 
+    this.getData = function(marker) {
+        var responsesRecieved = 0;
+        // Clear window content
+        windowContent = '';
+
+        // Send API Requests
+        getWiki(marker);
+        getStreetView(marker);
+
+        // Check if responses are recieved
+        wikiData.subscribe(function (data) {
+            responsesRecieved += 1;
+            windowContent += data.text;
+            windowContent += data.imageUrl;
+            //console.log(data.imageUrl);
+            //console.log(windowContent);
+            if (responsesRecieved == 2) {
+                populateInfoWindow(marker, largeInfowindow);
+            };
+         });
+
+         streetViewData.subscribe(function (data) {
+            responsesRecieved += 1;
+            windowContent += data;
+            //console.log(windowContent);
+            if (responsesRecieved == 2) {
+                populateInfoWindow(marker, largeInfowindow);
+            };
+         });
+
+    };
+
+
+
 };
 
 
 function getIcon(color) {
     // Simple URL constructor for a colored marker icon
     return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color;
-}
+};
 
 function initMap() {
 
@@ -154,7 +189,6 @@ function initMap() {
         })
         locations[i].id = marker.id;
         markers.push(marker);
-        //getWiki(marker);
         marker.addListener('click', function() {
             getWiki(this);
         });
@@ -170,7 +204,7 @@ function getGooglePlace(marker) {
     
     var request = {
         location: location,
-        radius: '500',
+        radius: '300',
         keyword: marker.title,
       };
 
@@ -180,7 +214,11 @@ function getGooglePlace(marker) {
     function callback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             var photo = results[0].photos[0];
-            var photoUrl = photo.getUrl({'maxWidth': 350, 'maxHeight': 350});
+            var photoUrl = "<img>" + 
+            photo.getUrl({'maxWidth': 350, 'maxHeight': 350}) +
+            "</img>";
+            //console.log(photoUrl);
+            //windowContent += photoUrl;
         }
       }
 
@@ -193,7 +231,7 @@ function getStreetView(marker) {
     var imageUrl = streetviewURL + parms;
     convertFunction(imageUrl, function(base64Img){
         var img = "<img src='"+base64Img+"'>";
-        windowContent = img;
+        streetViewData(img);
     });
             
     function convertFunction (url, callback){
@@ -217,8 +255,6 @@ function getWiki(marker){
     var url = wikiURL + "action=parse&format=json&prop=text&section=0&page=" + 
     marker.title + '&callback=?';
 
-    getStreetView(marker);
-
     $.ajax({
         type: "GET",
         url: url,
@@ -230,18 +266,50 @@ function getWiki(marker){
             try {
                 var result = data.parse.text["*"];
             }
-            // If not return message to user
+            // If not try to include the location in the page name
             catch(error) {
-                var message = "<div>No Wikipedia data to display.</div>";
-                windowContent += message;
-                populateInfoWindow(marker, largeInfowindow);
-                return;
+                // Alternate URL that includes the location
+                var altUrl = wikiURL + 
+                    "action=parse&format=json&prop=text&section=0&page=" + 
+                    marker.title + " (Sarajevo)" + '&callback=?';
+                // Check if the alternate URL is being used. 
+                //If not use it and try again
+                if (url != altUrl) {
+                    url = altUrl;
+                    //try again
+                    $.ajax(this);
+                    return;
+                }
+                // If both requests fail return message.
+                else {
+                    var message = "<div>No Wikipedia data to display.</div>";
+                    return message;
+                }
             }
             // If data is returned add to windowContent
             var blurb = $('<div></div>').html(result);
-            // Add to windowContent after removing references ex. [2][3]
-            windowContent += $('p', blurb)[0].textContent.replace(/(\[.*?\])/g, '');
-            populateInfoWindow(marker, largeInfowindow);
+            // Store text data after removing references ex. [2][3]
+            var text = "<p>" + $('p', blurb)[0].textContent.replace(/(\[.*?\])/g, '') + "</p>";
+            
+            // Second request to get Wikipedia's image
+            // Due to limitations of the API two requests need to be made
+            $.ajax({
+                type: "GET",
+                url: "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages%7Cpageterms&generator=prefixsearch&redirects=1&formatversion=2&piprop=thumbnail&pithumbsize=250&pilimit=20&wbptterms=description&gpssearch=" + marker.title + "&gpslimit=20&callback=?",
+                contentType: "application/json; charset=utf-8",
+                async: false,
+                dataType: "json",
+                success: function (data, textStatus, jqXHR) {
+                    if (data.query.pages[0].hasOwnProperty("thumbnail") === true) {
+                        var imageURL = "<img src=" + data.query.pages[0].thumbnail.source + "></img>";
+                        //console.log(imageURL);
+                        //console.log(text)
+                        wikiData({imageURL: imageURL, text: text});
+                    } else {
+                        console.log("No image was found.");
+                    };
+                }})
+            //populateInfoWindow(marker, largeInfowindow);
         },
         error: function (errorMessage) {
             console.log("There was an error: " + errorMessage);
@@ -253,10 +321,6 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      //getWiki(marker);
-      //var windowContent = getWiki(marker);
-      //console.log(windowContent);
-      //var windowContent = '<div>' + marker.title + '</div>';
       infowindow.setContent(windowContent);
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
@@ -265,5 +329,6 @@ function populateInfoWindow(marker, infowindow) {
       });
     }
   }
+
 
 ko.applyBindings(new ViewModel());
