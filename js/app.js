@@ -20,6 +20,7 @@ var ViewModel = function() {
     var mapOptions = {
         zoom: 16,
         center: locations[0].location,
+        disableDefaultUI: true,
         clickableIcons: false,
         styles: [
             {
