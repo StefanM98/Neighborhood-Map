@@ -83,10 +83,10 @@ var ViewModel = function() {
             icon: getIcon('00469F')
         })
         locations[i].id = marker.id;
-        markers.push(marker);
         marker.addListener('click', function() {
-            self.getData(marker);
+            self.getData(this);
         });
+        markers.push(marker);
         bounds.extend(markers[i].position);
         self.map.fitBounds(bounds);
     };
@@ -244,7 +244,7 @@ function getWiki(marker){
         type: "GET",
         url: url,
         contentType: "application/json; charset=utf-8",
-        async: false,
+        async: true,
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
             //Checks if there any data is returned
@@ -284,7 +284,7 @@ function getWiki(marker){
                 type: "GET",
                 url: "https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages%7Cpageterms&generator=prefixsearch&redirects=1&formatversion=2&piprop=thumbnail&pithumbsize=400&pilimit=20&wbptterms=description&gpssearch=" + marker.title + "&gpslimit=20&callback=?",
                 contentType: "application/json; charset=utf-8",
-                async: false,
+                async: true,
                 dataType: "json",
                 success: function (data, textStatus, jqXHR) {
                     if (data.query.pages[0].hasOwnProperty("thumbnail") === true) {
