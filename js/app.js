@@ -166,7 +166,7 @@ var ViewModel = function() {
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
         self.map.setCenter(this.location);
-        self.map.setZoom(19);
+        self.map.setZoom(18);
         self.getData(markers[this.id]);
     };
 
@@ -211,31 +211,7 @@ function getIcon(color) {
 };
 
 
-function getGooglePlace(marker) {
-    var location = {"lat": locations[marker.id].location.lat, "lng": locations[marker.id].location.lng};
-    var parms = "location=" + location + "keyword=" + marker.title + "&radius=300&key=" + googleKey;
-    
-    var request = {
-        location: location,
-        radius: '300',
-        keyword: marker.title,
-      };
-
-    service = new google.maps.places.PlacesService(map);
-    service.nearbySearch(request, callback);
-
-    function callback(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            var photo = results[0].photos[0];
-            var photoUrl = "<img>" + 
-            photo.getUrl({'maxWidth': 350, 'maxHeight': 350}) +
-            "</img>";
-        };
-    };
-};
-
-
-function getWiki(marker){
+function getWiki(marker) {
     var wikiURL = "http://en.wikipedia.org/w/api.php?";
     var url = wikiURL + "action=parse&format=json&prop=text&section=0&page=" + 
     marker.title + '&callback=?';
@@ -251,25 +227,9 @@ function getWiki(marker){
             try {
                 var result = data.parse.text["*"];
             }
-            // If not try to include the location in the page name
+            // If not dispaly error to user
             catch(error) {
-                // Alternate URL that includes the location
-                var altUrl = wikiURL + 
-                    "action=parse&format=json&prop=text&section=0&page=" + 
-                    marker.title + " (Sarajevo)" + '&callback=?';
-                // Check if the alternate URL is being used. 
-                //If not use it and try again
-                if (url != altUrl) {
-                    url = altUrl;
-                    //try again
-                    $.ajax(this);
-                    return;
-                }
-                // If both requests fail return message.
-                else {
-                    var message = "<div>No Wikipedia data to display.</div>";
-                    return message;
-                }
+                alert("Error. Unable to retrive location data. Error message: " + error);
             }
 
             // If data is returned add to windowContent
@@ -296,7 +256,7 @@ function getWiki(marker){
                 }});
         },
         error: function (errorMessage) {
-            console.log("There was an error: " + errorMessage);
+            alert("There was an error: " + errorMessage);
         }
     });
 };

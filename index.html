@@ -38,17 +38,13 @@
         <script type = "text/html" id = "infowindow-template">
             <div class="infowindow" data-bind="with: windowContent">
                 <div class="wikiimage">
-                    <img data-bind="attr: { src: img }"></img>
+                    <img class="locationimg" data-bind="attr: { src: img }"></img>
                 </div>
                 <div class="wikitext">
-                    <h2 data-bind="text: name"></h2>
-                    <h6 data-bind="text: text"></h6>
+                    <h3 data-bind="text: name"></h3>
+                    <p data-bind="text: text"></p>
                 </div>
-                
             </div>
-            
-            
-
         </script>
         
         <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHok7pIXvTWpSVIPwgG5DN_OHmNDiTsds&libraries=places&callback=start"></script>
