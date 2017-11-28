@@ -30,3 +30,5 @@ A very simplistic and lightweight python HTTP server script is included if you w
 - Filter the locations by type (ex: attraction, landmark etc.)
 - Add other APIs like Foursquare or Yelp for more information
 - Add light or dark theme options
+- Handle layout changes with knockout rather than jQuery
+- Replace deprecated success and error with .done() and .fail()

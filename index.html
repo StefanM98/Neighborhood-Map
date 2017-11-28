@@ -27,23 +27,10 @@
                         <i data-bind="click: toggleNav" class="fa fa-2x fa-bars" aria-hidden="true"></i>                            
                     </div>
                     <div id="map"></div>
-                    <div id="infowindow" class="hide" data-bind="template: { name: 'infowindow-template' }"></div>
                 </div>
             </div>
         </div>
 
-        <script type = "text/html" id = "infowindow-template">
-            <div class="infowindow" data-bind="with: windowContent">
-                <div class="wikiimage">
-                    <img class="locationimg" data-bind="attr: { src: img }"></img>
-                </div>
-                <div class="wikitext">
-                    <h3 data-bind="text: name"></h3>
-                    <p data-bind="text: text"></p>
-                    <p>Powered by Wikipedia</p>
-                </div>
-            </div>
-        </script>
         
         <script src="https://use.fontawesome.com/e507e806fa.js"></script>
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>

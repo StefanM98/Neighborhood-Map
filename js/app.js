@@ -306,11 +306,15 @@ function getWiki(marker) {
                 alert("Error. Unable to retrive location data. Error message: " + error);
             }
 
-            // If data is returned add to windowContent
-            var blurb = $("<div></div>").html(result);
+            // If data is returned extract the paragraph text
+            // Create dummy DOM element for easy data extraction
+            var dummyNode = document.createElement('div'),
+                resultText = '';
+            dummyNode.innerHTML = result;
+            var p = dummyNode.getElementsByTagName("p")[0];
+            // Store text after removing references (ex. [2][3])
+            var text = p.textContent.replace(/(\[.*?\])/g, "");
 
-            // Store text data after removing references ex. [2][3]
-            var text = $("p", blurb)[0].textContent.replace(/(\[.*?\])/g, "");
 
             // Second request to get Wikipedia's image
             // Due to limitations of the API two requests need to be made
@@ -328,10 +332,14 @@ function getWiki(marker) {
                     } else {
                         alert("No image was found.");
                     }
-                }});
+                },
+                error: function (errorMessage) {
+                    alert("There was an error getting the image: " + errorMessage);
+                }
+            });
         },
         error: function (errorMessage) {
-            alert("There was an error: " + errorMessage);
+            alert("There was an error getting the Wiki text: " + errorMessage);
         }
     });
 }
@@ -354,7 +362,10 @@ function populateInfoWindow(marker, infowindow) {
 function imgError(image) {
     // Function that displays a loading icon while the ajax requests process
     image.onerror = "";
-    image.src = "/images/loading_ring.svg";
+    image.src = "images/loading_ring.svg";
+    image.class = "loading";
+    image.parentElement.style.height = '125px';
+    image.parentElement.style.width = '125px';
     return true;
 }
 
