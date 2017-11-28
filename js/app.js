@@ -233,11 +233,12 @@ var ViewModel = function() {
     this.addClickListener = function(marker) {
         marker.addListener("click", function() {
             doBounce(this);
-            self.getData(this)
+            self.getData(this);
         });
-    }
-    for (var i = 0; i < markers.length; i++) {
-        self.addClickListener(markers[i]);
+    };
+    
+    for (var m = 0; m < markers.length; m++) {
+        self.addClickListener(markers[m]);
     }
 };
 
