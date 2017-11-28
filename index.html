@@ -23,7 +23,7 @@
                         <input data-bind="textInput: searchTerm, valueUpdate: 'afterkeydown'" placeholder="Search…" class="textbox" type="text">
                     </div>
                     <ul id="list" data-bind="foreach: locations">
-                        <li data-bind="event: {mouseover: $parent.toggleHighlight, mouseout: $parent.toggleHighlight}, text: name.replace(', Sarajevo', ''), click: $parent.focus"></li>
+                        <li data-bind="event: {mouseover: $parent.toggleHighlight, mouseout: $parent.toggleHighlight}, text: name.replace(', Sarajevo', '').replace('(Sarajevo)', ''), click: $parent.focus"></li>
                     </ul>
                 </div>
                 <div id="main">

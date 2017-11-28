@@ -1,10 +1,13 @@
 // Locations in Sarajevo, Bosnia and Herzegovina
 var locations = [
     {name: "Sebilj in Sarajevo", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8597142, lng: 18.4313161}},
-    {name: "Sacred Heart Cathedral, Sarajevo", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8594, lng: 18.4254}},
+    {name: "Sacred Heart Cathedral, Sarajevo", visable: true, highlighted: false, type: "church", location: {lat: 43.8594, lng: 18.4254}},
     {name: "Eternal flame (Sarajevo)", visable: true, highlighted: false, type: "memorial", location: {lat: 43.858861, lng: 18.421861}},
     {name: "Sarajevo National Theatre", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}},
-    {name: "Avaz Twist Tower", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8555008, lng: 18.3972013}}
+    {name: "Avaz Twist Tower", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8555008, lng: 18.3972013}},
+    {name: "Saint Joseph's Church, Sarajevo", visable: true, highlighted: false, type: "church", location: {lat: 43.855368, lng: 18.4080683}},
+    {name: "Ali Pasha Mosque (Sarajevo)", visable: true, highlighted: false, type: "church", location: {lat: 43.8574298, lng: 18.4119343}},
+    {name: "National and University Library of Bosnia and Herzegovina", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8574298, lng: 18.4119343}}
 ];
 
 
@@ -129,7 +132,7 @@ var ViewModel = function() {
                 this.navToggle = false;
             }
             else {
-                document.getElementById("menu").style.width = "260px";
+                document.getElementById("menu").style.width = "270px";
                 document.getElementById("main").style.marginLeft = "260px";
                 this.navToggle = true;
             }
