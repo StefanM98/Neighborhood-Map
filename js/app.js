@@ -108,7 +108,9 @@ var ViewModel = function() {
         self.locations().push(locations[i]);
     };
     
-    self.locations.sort(function (left, right) { return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) });
+    self.locations.sort(function (left, right) { 
+        return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) 
+    });
 
     this.navToggle = ko.observable(false);
 
@@ -173,7 +175,9 @@ var ViewModel = function() {
             locations.forEach(function(location) {
                 self.toggleVisability(location, true);
             });
-            return self.locations.sort(function (left, right) { return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) });;
+            return self.locations.sort(function (left, right) { 
+                return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) 
+            });;
         }
         else {
             return ko.utils.arrayFilter(locations, function(location) {
