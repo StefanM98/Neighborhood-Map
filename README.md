@@ -1,11 +1,11 @@
 # Neighborhood-Map
 A simple application that displays a map of a given neighborhood with points of interest within it and information about those points. 
 
-![Screenshot of the app](/Neighborhood-Map/screenshots/img1.jpg?raw=true)
+![Screenshot of the app](/master/screenshots/img1.JPG?raw=true)
 
 By default the application shows historic buildings and landmarks in Sarajevo, Bosnia and Herzegovina and displays a brief description of them along with an image. 
 
-![Screenshot of the infowindow](Neighborhood-Map/screenshots/img2.jpg?raw=true)
+![Screenshot of the infowindow](/master/screenshots/img2.JPG?raw=true)
 
 # How it works
 This application was created using Knockout.js, the Google Maps API, and Wikipedia API. It loads a list of locations that the user can click to learn more about. Once clicked, the map focuses on the location and provides the user with custom information about the location along with an image that is pulled directly from the location's Wikipedia article. Users can also filter or search the map for specific locations.
