@@ -16,7 +16,6 @@ var wikiData;
 
 var ViewModel = function() {
     var self = this;
-    this.map;
     var mapOptions = {
         zoom: 16,
         center: locations[0].location,
@@ -69,6 +68,13 @@ var ViewModel = function() {
     var bounds = new google.maps.LatLngBounds();
     this.map = new google.maps.Map(document.getElementById('map'), mapOptions)
     
+    // When the window is resized, reopen the infowindow if it is open
+    google.maps.event.addDomListener(window, 'resize', function() {
+        if (largeInfowindow.map != null) {
+            largeInfowindow.open(self.map);
+        }
+    });
+
     // Adds all locations to markers
     for (var i = 0; i < locations.length; i++) {
         var position = locations[i].location;
@@ -105,16 +111,29 @@ var ViewModel = function() {
 
     this.toggleNav = function() {
         // Function that toggles the nav side bar
-        if (this.navToggle == true) {
-            document.getElementById("menu").style.width = "0";
-            document.getElementById("main").style.marginLeft = "0";
-            this.navToggle = false;
+
+        if ($(window).width() <= 500) {
+            if (this.navToggle == true) {
+                document.getElementById("menu").style.width = "0";
+                this.navToggle = false;
+            }
+            else {
+                document.getElementById("menu").style.width = "260px";
+                this.navToggle = true;
+            }
         }
         else {
-            document.getElementById("menu").style.width = "260px";
-            document.getElementById("main").style.marginLeft = "260px";
-            this.navToggle = true;
-        };
+            if (this.navToggle == true) {
+                document.getElementById("menu").style.width = "0";
+                document.getElementById("main").style.marginLeft = "0";
+                this.navToggle = false;
+            }
+            else {
+                document.getElementById("menu").style.width = "260px";
+                document.getElementById("main").style.marginLeft = "260px";
+                this.navToggle = true;
+            }
+        }
     };
 
     // Toggles the visability of the marker and list locations
@@ -166,6 +185,11 @@ var ViewModel = function() {
 
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
+        
+        if ($(window).width() <= 500) { 
+            self.toggleNav();
+        }
+
         self.map.setCenter(this.location);
         self.map.setZoom(18);
         self.getData(markers[this.id]);
@@ -269,8 +293,9 @@ function populateInfoWindow(marker, infowindow) {
     infowindow.open(map, marker);
     
     // Make sure the marker property is cleared if the infowindow is closed.
-    infowindow.addListener('closeclick',function(){
+    infowindow.addListener('closeclick', function(){
         infowindow.setMarker = null;
+        infowindow.close();
         infowindow.setContent("");
   });
 };
