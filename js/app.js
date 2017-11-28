@@ -93,10 +93,6 @@ var ViewModel = function() {
             icon: getIcon("00469F")
         });
         locations[i].id = marker.id;
-        marker.addListener("click", function() {
-            doBounce(this);
-            self.getData(this);
-        });
         markers.push(marker);
         bounds.extend(markers[i].position);
         self.map.fitBounds(bounds);
@@ -233,6 +229,16 @@ var ViewModel = function() {
             populateInfoWindow(marker, largeInfowindow);
         });
     };
+
+    this.addClickListener = function(marker) {
+        marker.addListener("click", function() {
+            doBounce(this);
+            self.getData(this)
+        });
+    }
+    for (var i = 0; i < markers.length; i++) {
+        self.addClickListener(markers[i]);
+    }
 };
 
 
