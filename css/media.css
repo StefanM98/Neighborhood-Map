@@ -1,6 +1,43 @@
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 700px) {
     #menu {
         position: absolute;
+    }
+    
+    .wikiimage {
+        max-width: 100%;
+        max-height: 100%;
+        margin: auto;
+    }
+    
+    
+    .wikitext {
+        max-width: 100%;
+        padding-left: 0px;
+        font-size: 16px;
+    }
+    .wikitext h3 {
+        padding: 10px;
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .gm-style-iw {
+        max-width: 75vw;
+    }
+}
+
+@media screen and (max-width: 700px) and (orientation: landscape) {
+    .locationimg {
+        position: absolute;
+    }
+
+    .wikiimage {
+        width: 250px;
+        max-width: 100%;
+        margin: 0 auto;
+        overflow: hidden;
+        position: relative;
+        height: 205px;
     }
 }

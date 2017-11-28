@@ -67,6 +67,7 @@ var ViewModel = function() {
         ]
     };
     largeInfowindow = new google.maps.InfoWindow();
+    largeInfowindow.map = null;
     this.windowContent = ko.observable();
     var bounds = new google.maps.LatLngBounds();
     this.map = new google.maps.Map(document.getElementById("map"), mapOptions);
@@ -189,7 +190,7 @@ var ViewModel = function() {
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
 
-        if ($(window).width() <= 500) {
+        if ($(window).width() <= 700) {
             self.toggleNav();
         }
         doBounce(markers[this.id]);
@@ -217,17 +218,45 @@ var ViewModel = function() {
         }
     };
 
+    // Gets data from APIs
     this.getData = function(marker) {
         results("");
 
         // Send API Requests
         getWiki(marker);
 
+        // Once data is recieved, display the data
         ko.computed(function() {
             results();
-            self.windowContent({name: marker.title, img: results().img, text: results().text});
-            populateInfoWindow(marker, largeInfowindow);
+            var data = {name: marker.title, img: results().img, 
+                text: results().text, link: results().wikiLink};
+            self.displayData(data, marker);
         });
+    };
+
+    this.displayData = function(data, marker) {
+        
+        if (!data.img || !data.text) {
+            // Prevents 404 error by temporarly changing the src
+            data.img = "";
+            // Displays temporary text instead of 'undefined'
+            data.text = "";
+            data.name = "Loading...";
+            data.link = "#";
+        };
+
+        windowContent = 
+            "<div class='infowindow'> \
+                <div class='wikiimage'> \
+                    <img class='locationimg' src='" + data.img + "' onerror='imgError(this);'></img> \
+                </div> \
+                <div class='wikitext'> \
+                    <h3 placeholder='loading'>" + data.name + "</h3> \
+                    <p>" + data.text + "</p> \
+                    <a href='" + data.link + "'>Powered by Wikipedia</a> \
+                </div> \
+            </div>";
+        populateInfoWindow(marker, largeInfowindow);
     };
 
     this.addClickListener = function(marker) {
@@ -293,10 +322,11 @@ function getWiki(marker) {
                 dataType: "json",
                 success: function (data, textStatus, jqXHR) {
                     if (data.query.pages[0].hasOwnProperty("thumbnail") === true) {
+                        var wikiLink = "https://en.wikipedia.org/?curid=" + data.query.pages[0].pageid;
                         var imageURL = data.query.pages[0].thumbnail.source;
-                        results({img: imageURL, text: text});
+                        results({img: imageURL, text: text, wikiLink: wikiLink});
                     } else {
-                        console.log("No image was found.");
+                        alert("No image was found.");
                     }
                 }});
         },
@@ -306,10 +336,9 @@ function getWiki(marker) {
     });
 }
 
-
 function populateInfoWindow(marker, infowindow) {
     infowindow.marker = marker;
-    infowindow.setContent(document.getElementById("infowindow").innerHTML);
+    infowindow.setContent(windowContent);
     infowindow.open(map, marker);
 
     // Make sure the marker property is cleared if the infowindow is closed.
@@ -318,6 +347,19 @@ function populateInfoWindow(marker, infowindow) {
         infowindow.close();
         infowindow.setContent("");
   });
+}
+
+// Error Handling
+
+function imgError(image) {
+    // Function that displays a loading icon while the ajax requests process
+    image.onerror = "";
+    image.src = "/images/loading_ring.svg";
+    return true;
+}
+
+function gmapsError() {
+    alert("Google Maps Failed to load.");
 }
 
 function start() {
