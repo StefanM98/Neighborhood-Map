@@ -99,13 +99,13 @@ var ViewModel = function() {
         });
         markers.push(marker);
         bounds.extend(markers[i].position);
-        self.map.fitBounds(bounds)
-    };
+        self.map.fitBounds(bounds);
+    }
 
     // Sets up inital view locations array
     this.locations = ko.observableArray([]);
-    for (var i = 0; i < locations.length; i++) {
-        self.locations().push(locations[i]);
+    for (var x = 0; x < locations.length; x++) {
+        self.locations().push(locations[x]);
     }
 
     self.locations.sort(function (left, right) {
@@ -238,13 +238,13 @@ var ViewModel = function() {
 
 function getIcon(color) {
     // Simple URL constructor for a colored marker icon
-    return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color
-};
+    return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color;
+}
 
 function doBounce(marker) {
     marker.setAnimation(google.maps.Animation.BOUNCE);
     setTimeout(function(){ marker.setAnimation(null); }, 750);
-};
+}
 
 
 
@@ -289,31 +289,31 @@ function getWiki(marker) {
                         var imageURL = data.query.pages[0].thumbnail.source;
                         results({img: imageURL, text: text});
                     } else {
-                        console.log("No image was found.")
-                    };
+                        console.log("No image was found.");
+                    }
                 }});
         },
         error: function (errorMessage) {
             alert("There was an error: " + errorMessage);
         }
     });
-};
+}
 
 
 function populateInfoWindow(marker, infowindow) {
     infowindow.marker = marker;
     infowindow.setContent(document.getElementById("infowindow").innerHTML);
-    infowindow.open(map, marker)
+    infowindow.open(map, marker);
 
     // Make sure the marker property is cleared if the infowindow is closed.
     infowindow.addListener("closeclick", function(){
-        infowindow.setMarker = null
+        infowindow.setMarker = null;
         infowindow.close();
         infowindow.setContent("");
   });
-};
+}
 
 function start() {
     ko.applyBindings(new ViewModel());
-};
+}
 
