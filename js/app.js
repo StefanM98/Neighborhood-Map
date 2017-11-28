@@ -6,7 +6,7 @@ var locations = [
     {name: "Sarajevo National Theatre", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8569, lng: 18.4208}},
     {name: "Avaz Twist Tower", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8555008, lng: 18.3972013}},
     {name: "Saint Joseph's Church, Sarajevo", visable: true, highlighted: false, type: "church", location: {lat: 43.855368, lng: 18.4080683}},
-    {name: "Ali Pasha Mosque (Sarajevo)", visable: true, highlighted: false, type: "church", location: {lat: 43.8574298, lng: 18.4119343}},
+    {name: "Ali Pasha Mosque (Sarajevo)", visable: true, highlighted: false, type: "church", location: {lat: 43.8580121, lng: 18.4105339}},
     {name: "National and University Library of Bosnia and Herzegovina", visable: true, highlighted: false, type: "attraction", location: {lat: 43.8574298, lng: 18.4119343}}
 ];
 
@@ -69,11 +69,11 @@ var ViewModel = function() {
     largeInfowindow = new google.maps.InfoWindow();
     this.windowContent = ko.observable();
     var bounds = new google.maps.LatLngBounds();
-    this.map = new google.maps.Map(document.getElementById('map'), mapOptions)
+    this.map = new google.maps.Map(document.getElementById('map'), mapOptions);
     
     // When the window is resized, reopen the infowindow if it is open
     google.maps.event.addDomListener(window, 'resize', function() {
-        if (largeInfowindow.map != null) {
+        if (largeInfowindow.map !== null) {
             largeInfowindow.open(self.map);
         }
     });
@@ -91,25 +91,25 @@ var ViewModel = function() {
             animation: google.maps.Animation.DROP,
             id: i,
             icon: getIcon('00469F')
-        })
+        });
         locations[i].id = marker.id;
         marker.addListener('click', function() {
+            doBounce(this);
             self.getData(this);
         });
         markers.push(marker);
         bounds.extend(markers[i].position);
-        self.map.fitBounds(bounds);
+        self.map.fitBounds(bounds)
     };
 
     // Sets up inital view locations array
     this.locations = ko.observableArray([]);
-    
     for (var i = 0; i < locations.length; i++) {
         self.locations().push(locations[i]);
-    };
+    }
     
     self.locations.sort(function (left, right) { 
-        return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) 
+        return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1);
     });
 
     this.navToggle = ko.observable(false);
@@ -118,7 +118,7 @@ var ViewModel = function() {
         // Function that toggles the nav side bar
 
         if ($(window).width() <= 500) {
-            if (this.navToggle == true) {
+            if (this.navToggle === true) {
                 document.getElementById("menu").style.width = "0";
                 this.navToggle = false;
             }
@@ -128,7 +128,7 @@ var ViewModel = function() {
             }
         }
         else {
-            if (this.navToggle == true) {
+            if (this.navToggle === true) {
                 document.getElementById("menu").style.width = "0";
                 document.getElementById("main").style.marginLeft = "0";
                 this.navToggle = false;
@@ -155,14 +155,14 @@ var ViewModel = function() {
                 if (self.locations()[i].name == location.name) {
                     found = true;
                     break;
-                };
-            };
+                }
+            }
 
             if (!found) {
                 self.locations.push(location);
-            };
+            }
             location.visable = true;
-        };
+        }
     };
     
 
@@ -176,8 +176,8 @@ var ViewModel = function() {
                 self.toggleVisability(location, true);
             });
             return self.locations.sort(function (left, right) { 
-                return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1) 
-            });;
+                return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1);
+            });
         }
         else {
             return ko.utils.arrayFilter(locations, function(location) {
@@ -186,7 +186,7 @@ var ViewModel = function() {
                 self.toggleVisability(location, result);
 				return result;
             });
-        };
+        }
     });
 
 
@@ -196,7 +196,7 @@ var ViewModel = function() {
         if ($(window).width() <= 500) { 
             self.toggleNav();
         }
-
+        doBounce(markers[this.id]);
         self.map.setCenter(this.location);
         self.map.setZoom(18);
         self.getData(markers[this.id]);
@@ -205,9 +205,10 @@ var ViewModel = function() {
 
     // "Highlights" the marker by changing it's color
     this.toggleHighlight = function() {
+        var thisMarker;
         for (var i = 0; i < markers.length; i++) {
             if (markers[i].title == this.name) {
-                var thisMarker = markers[i];
+                thisMarker = markers[i];
             }
         }
         if (thisMarker.highlighted) {
@@ -239,8 +240,14 @@ var ViewModel = function() {
 
 function getIcon(color) {
     // Simple URL constructor for a colored marker icon
-    return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color;
+    return "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + color
 };
+
+function doBounce(marker) {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function(){ marker.setAnimation(null); }, 750);   
+};
+
 
 
 function getWiki(marker) {
@@ -255,9 +262,10 @@ function getWiki(marker) {
         async: true,
         dataType: "json",
         success: function (data, textStatus, jqXHR) {
+            var result;
             //Checks if there any data is returned
             try {
-                var result = data.parse.text["*"];
+                result = data.parse.text["*"];
             }
             // If not dispaly error to user
             catch(error) {
@@ -283,7 +291,7 @@ function getWiki(marker) {
                         var imageURL = data.query.pages[0].thumbnail.source;
                         results({img: imageURL, text: text});
                     } else {
-                        console.log("No image was found.");
+                        console.log("No image was found.")
                     };
                 }});
         },
@@ -297,11 +305,11 @@ function getWiki(marker) {
 function populateInfoWindow(marker, infowindow) {
     infowindow.marker = marker;
     infowindow.setContent(document.getElementById("infowindow").innerHTML);
-    infowindow.open(map, marker);
+    infowindow.open(map, marker)
     
     // Make sure the marker property is cleared if the infowindow is closed.
     infowindow.addListener('closeclick', function(){
-        infowindow.setMarker = null;
+        infowindow.setMarker = null
         infowindow.close();
         infowindow.setContent("");
   });
