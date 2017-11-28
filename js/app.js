@@ -69,10 +69,10 @@ var ViewModel = function() {
     largeInfowindow = new google.maps.InfoWindow();
     this.windowContent = ko.observable();
     var bounds = new google.maps.LatLngBounds();
-    this.map = new google.maps.Map(document.getElementById('map'), mapOptions);
-    
+    this.map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
     // When the window is resized, reopen the infowindow if it is open
-    google.maps.event.addDomListener(window, 'resize', function() {
+    google.maps.event.addDomListener(window, "resize", function() {
         if (largeInfowindow.map !== null) {
             largeInfowindow.open(self.map);
         }
@@ -90,10 +90,10 @@ var ViewModel = function() {
             type: type,
             animation: google.maps.Animation.DROP,
             id: i,
-            icon: getIcon('00469F')
+            icon: getIcon("00469F")
         });
         locations[i].id = marker.id;
-        marker.addListener('click', function() {
+        marker.addListener("click", function() {
             doBounce(this);
             self.getData(this);
         });
@@ -107,8 +107,8 @@ var ViewModel = function() {
     for (var i = 0; i < locations.length; i++) {
         self.locations().push(locations[i]);
     }
-    
-    self.locations.sort(function (left, right) { 
+
+    self.locations.sort(function (left, right) {
         return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1);
     });
 
@@ -164,7 +164,7 @@ var ViewModel = function() {
             location.visable = true;
         }
     };
-    
+
 
     this.searchTerm = ko.observable("");
 
@@ -175,16 +175,16 @@ var ViewModel = function() {
             locations.forEach(function(location) {
                 self.toggleVisability(location, true);
             });
-            return self.locations.sort(function (left, right) { 
+            return self.locations.sort(function (left, right) {
                 return left.name == right.name ? 0 : (left.name < right.name ? -1 : 1);
             });
         }
         else {
             return ko.utils.arrayFilter(locations, function(location) {
                 var string = location.name.toLowerCase();
-				var result = (string.search(filter) >= 0);
+                var result = (string.search(filter) >= 0);
                 self.toggleVisability(location, result);
-				return result;
+                return result;
             });
         }
     });
@@ -192,8 +192,8 @@ var ViewModel = function() {
 
     // This is called when user picks a location from the list or clicks on the marker.
     this.focus = function() {
-        
-        if ($(window).width() <= 500) { 
+
+        if ($(window).width() <= 500) {
             self.toggleNav();
         }
         doBounce(markers[this.id]);
@@ -212,20 +212,18 @@ var ViewModel = function() {
             }
         }
         if (thisMarker.highlighted) {
-            thisMarker.setIcon(getIcon('00469F'));
+            thisMarker.setIcon(getIcon("00469F"));
             thisMarker.highlighted = false;
         }
         else {
-            thisMarker.setIcon(getIcon('1EADFF'));
+            thisMarker.setIcon(getIcon("1EADFF"));
             thisMarker.highlighted = true;
         }
-        
-    }; 
-    
+    };
 
     this.getData = function(marker) {
         results("");
-        
+
         // Send API Requests
         getWiki(marker);
 
@@ -245,15 +243,15 @@ function getIcon(color) {
 
 function doBounce(marker) {
     marker.setAnimation(google.maps.Animation.BOUNCE);
-    setTimeout(function(){ marker.setAnimation(null); }, 750);   
+    setTimeout(function(){ marker.setAnimation(null); }, 750);
 };
 
 
 
 function getWiki(marker) {
     var wikiURL = "http://en.wikipedia.org/w/api.php?";
-    var url = wikiURL + "action=parse&format=json&prop=text&section=0&page=" + 
-    marker.title + '&callback=?';
+    var url = wikiURL + "action=parse&format=json&prop=text&section=0&page=" +
+    marker.title + "&callback=?";
 
     $.ajax({
         type: "GET",
@@ -273,11 +271,11 @@ function getWiki(marker) {
             }
 
             // If data is returned add to windowContent
-            var blurb = $('<div></div>').html(result);
-            
+            var blurb = $("<div></div>").html(result);
+
             // Store text data after removing references ex. [2][3]
-            var text = $('p', blurb)[0].textContent.replace(/(\[.*?\])/g, '');
-            
+            var text = $("p", blurb)[0].textContent.replace(/(\[.*?\])/g, "");
+
             // Second request to get Wikipedia's image
             // Due to limitations of the API two requests need to be made
             $.ajax({
@@ -306,9 +304,9 @@ function populateInfoWindow(marker, infowindow) {
     infowindow.marker = marker;
     infowindow.setContent(document.getElementById("infowindow").innerHTML);
     infowindow.open(map, marker)
-    
+
     // Make sure the marker property is cleared if the infowindow is closed.
-    infowindow.addListener('closeclick', function(){
+    infowindow.addListener("closeclick", function(){
         infowindow.setMarker = null
         infowindow.close();
         infowindow.setContent("");
